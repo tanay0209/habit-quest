@@ -1,38 +1,58 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
+import '~/global.css';
+
+import { Theme, ThemeProvider, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import * as React from 'react';
+import { Platform } from 'react-native';
+import { NAV_THEME } from '~/lib/constants';
+import { useColorScheme } from '~/lib/useColorScheme';
+import { Toaster } from 'sonner-native';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+const LIGHT_THEME: Theme = {
+  ...DefaultTheme,
+  colors: NAV_THEME.light,
+};
+const DARK_THEME: Theme = {
+  ...DarkTheme,
+  colors: NAV_THEME.dark,
+};
 
-SplashScreen.preventAutoHideAsync();
+export {
+  ErrorBoundary,
+} from 'expo-router';
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
+  const hasMounted = React.useRef(false);
+  const { colorScheme, isDarkColorScheme } = useColorScheme();
+  const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
 
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
+  useIsomorphicLayoutEffect(() => {
+    if (hasMounted.current) {
+      return;
     }
-  }, [loaded]);
 
-  if (!loaded) {
+    if (Platform.OS === 'web') {
+      document.documentElement.classList.add('bg-background');
+    }
+    setIsColorSchemeLoaded(true);
+    hasMounted.current = true;
+  }, []);
+
+  if (!isColorSchemeLoaded) {
     return null;
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
+      <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} />
       <Stack>
-        <Stack.Screen name="(auth)/index" />
-        <Stack.Screen name="+not-found" />
+        <Stack.Screen name='(auth)' options={{ headerShown: false }} />
       </Stack>
-      <StatusBar style="auto" />
+      <Toaster position='bottom-center' />
     </ThemeProvider>
   );
 }
+
+const useIsomorphicLayoutEffect =
+  Platform.OS === 'web' && typeof window === 'undefined' ? React.useEffect : React.useLayoutEffect;

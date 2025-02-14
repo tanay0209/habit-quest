@@ -1,36 +1,67 @@
-import { View, Text, StyleSheet, useColorScheme, StatusBar } from 'react-native'
+import { View, Text } from 'react-native'
 import React from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { ThemedView } from '@/components/ThemedView'
-import { Colors } from '@/constants/Colors'
-import { Link, Stack } from 'expo-router'
+import ScreenLayout from '@/components/screen-layout'
+import { Controller, useForm } from "react-hook-form"
+import loginSchema from '@/schema/login-schema'
+import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Input } from '~/components/ui/input'
+import { Button } from "~/components/ui/button"
 
-const index = () => {
-    const theme = useColorScheme() ?? "light"
-    const themeColors = Colors[theme]
+const Index = () => {
+    const { control, handleSubmit, formState: { errors } } = useForm<z.infer<typeof loginSchema>>({
+        resolver: zodResolver(loginSchema),
+        defaultValues: {
+            userId: "",
+            password: ""
+        }
+    })
+
+    const onPress = (data: z.infer<typeof loginSchema>) => {
+
+    }
+
     return (
-        <>
-            <Stack.Screen options={{ headerShown: false }} />
-            <SafeAreaView style={{ flex: 1, backgroundColor: themeColors.background }}>
-                <StatusBar
-                    barStyle={theme === "dark" ? "light-content" : "dark-content"}
-                    backgroundColor={themeColors.background}
+        <ScreenLayout>
+            <View className='flex-1 justify-center gap-6'>
+                <Controller
+                    control={control}
+                    name="userId"
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <View>
+                            <Input
+                                placeholder="Email/Username"
+                                className="w-full placeholder:text-muted-foreground"
+                                value={value}
+                                onChangeText={onChange}
+                                onBlur={onBlur}
+                            />
+                            {errors.userId && <Text className="text-start text-red-500">{errors.userId.message}</Text>}
+                        </View>
+                    )}
                 />
-                <ThemedView style={[styles.container, { backgroundColor: themeColors.background }]}>
-                    <Text style={{ color: themeColors.text }}>Habit Quest!</Text>
-                </ThemedView>
-            </SafeAreaView>
-        </>
+
+                <Controller
+                    control={control}
+                    name="password"
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <View>
+                            <Input
+                                placeholder="Password"
+                                className="w-full placeholder:text-muted-foreground"
+                                value={value}
+                                onChangeText={onChange}
+                                onBlur={onBlur}
+                                secureTextEntry
+                            />
+                            {errors.password && <Text className="text-red-500">{errors.password.message}</Text>}
+                        </View>
+                    )}
+                />
+                <Button onPress={handleSubmit(onPress)} className='w-full'><Text>Login</Text></Button>
+            </View>
+        </ScreenLayout>
     )
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    text: {
-        color: "white"
-    }
-})
-
-export default index
+export default Index
