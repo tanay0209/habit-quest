@@ -7,23 +7,33 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Input } from '~/components/ui/input'
 import { Button } from "~/components/ui/button"
+import { useAuth } from '@/store/use-auth'
+import { successToast } from '@/utils/toast'
+import { Link, useRouter } from 'expo-router'
 
 const Index = () => {
-    const { control, handleSubmit, formState: { errors } } = useForm<z.infer<typeof loginSchema>>({
+    const { control, handleSubmit, formState: { errors }, reset } = useForm<z.infer<typeof loginSchema>>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
-            userId: "",
-            password: ""
+            userId: "Tanay Jagnani",
+            password: "12345678"
         }
     })
-
-    const onPress = (data: z.infer<typeof loginSchema>) => {
-
+    const router = useRouter()
+    const login = useAuth(state => state.login)
+    const onPress = async (data: z.infer<typeof loginSchema>) => {
+        const response = await login(data.userId, data.password)
+        if (response.success) {
+            reset()
+            router.push("/(home)")
+            successToast({ message: response.message })
+        }
     }
 
     return (
         <ScreenLayout>
             <View className='flex-1 justify-center gap-6'>
+                <Text className='text-primary text-3xl text-center'>Habit Quest</Text>
                 <Controller
                     control={control}
                     name="userId"
@@ -58,9 +68,16 @@ const Index = () => {
                         </View>
                     )}
                 />
-                <Button onPress={handleSubmit(onPress)} className='w-full'><Text>Login</Text></Button>
+                <Button variant="default" onPress={handleSubmit(onPress)} className='w-full'><Text className='text-primary-foreground'>Login</Text></Button>
+                <Link href="/" className='text-muted-foreground text-right'>Forgot Password</Link>
+                <Link className='mt-4 git committext-center text-muted-foreground' href="/(auth)/register">
+                    New User?{" "}<Text className='underline
+                    '>
+                        Register
+                    </Text>
+                </Link>
             </View>
-        </ScreenLayout>
+        </ScreenLayout >
     )
 }
 

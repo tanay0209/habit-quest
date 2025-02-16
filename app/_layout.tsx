@@ -1,5 +1,5 @@
 import '~/global.css';
-
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Theme, ThemeProvider, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -44,13 +44,15 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-      <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} />
-      <Stack>
-        <Stack.Screen name='(auth)' options={{ headerShown: false }} />
-      </Stack>
-      <Toaster position='bottom-center' />
-    </ThemeProvider>
+    <GestureHandlerRootView >
+      <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
+        <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} />
+        <Stack screenOptions={{ animation: "ios_from_right" }}>
+          <Stack.Screen name='(auth)' options={{ headerShown: false }} />
+        </Stack>
+        <Toaster position='bottom-center' />
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }
 
