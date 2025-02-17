@@ -1,5 +1,5 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import { View, Text, TouchableOpacity } from 'react-native'
+import React, { useState } from 'react'
 import ScreenLayout from '@/components/screen-layout'
 import { Controller, useForm } from "react-hook-form"
 import loginSchema from '@/schema/login-schema'
@@ -10,6 +10,8 @@ import { Button } from "~/components/ui/button"
 import { useAuth } from '@/store/use-auth'
 import { successToast } from '@/utils/toast'
 import { Link, useRouter } from 'expo-router'
+import { Eye, EyeOff } from 'lucide-react-native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const Index = () => {
     const { control, handleSubmit, formState: { errors }, reset } = useForm<z.infer<typeof loginSchema>>({
@@ -25,15 +27,22 @@ const Index = () => {
         const response = await login(data.userId, data.password)
         if (response.success) {
             reset()
-            router.push("/(home)")
-            successToast({ message: response.message })
+            try {
+                await AsyncStorage.setItem("accessToken", response.data.accessToken)
+                await AsyncStorage.setItem("refreshToken", response.data.refreshToken)
+                successToast({ message: response.message })
+                router.replace("/(home)")
+            } catch (error) {
+                console.error(error);
+            }
         }
     }
-
+    const [showPassword, setShowPassword] = useState(false)
     return (
         <ScreenLayout>
             <View className='flex-1 justify-center gap-6'>
                 <Text className='text-primary text-3xl text-center'>Habit Quest</Text>
+                <Text className='text-primary text-center'>Welcome back! Stay on track with your habits.</Text>
                 <Controller
                     control={control}
                     name="userId"
@@ -55,22 +64,27 @@ const Index = () => {
                     control={control}
                     name="password"
                     render={({ field: { onChange, onBlur, value } }) => (
-                        <View>
+                        <View className="relative">
                             <Input
                                 placeholder="Password"
-                                className="w-full placeholder:text-muted-foreground"
+                                className="w-full placeholder:text-muted-foreground pr-10"
                                 value={value}
                                 onChangeText={onChange}
                                 onBlur={onBlur}
-                                secureTextEntry
+                                secureTextEntry={!showPassword}
                             />
+                            <TouchableOpacity
+                                onPress={() => setShowPassword(!showPassword)}
+                                className="absolute right-4 top-4"
+                            >
+                                {showPassword ? <EyeOff size={20} color="white" /> : <Eye color="white" size={20} />}
+                            </TouchableOpacity>
                             {errors.password && <Text className="text-red-500">{errors.password.message}</Text>}
                         </View>
                     )}
                 />
                 <Button variant="default" onPress={handleSubmit(onPress)} className='w-full'><Text className='text-primary-foreground'>Login</Text></Button>
-                <Link href="/" className='text-muted-foreground text-right'>Forgot Password</Link>
-                <Link className='mt-4 git committext-center text-muted-foreground' href="/(auth)/register">
+                <Link className='mt-4 text-center text-muted-foreground' href="/(auth)/register">
                     New User?{" "}<Text className='underline
                     '>
                         Register

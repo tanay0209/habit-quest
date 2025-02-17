@@ -1,4 +1,5 @@
 type ApiResponse = {
     success: boolean,
-    message: string
+    message: string,
+    data?: any
 }

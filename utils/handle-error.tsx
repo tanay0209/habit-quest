@@ -2,6 +2,7 @@ import axios from "axios"
 import { errorToast } from "./toast"
 
 export function handleError(error: Error | unknown) {
+    console.error(error)
     if (axios.isAxiosError(error)) {
         errorToast({ message: error.response?.data?.message || "Something went wrong" })
     } else {
