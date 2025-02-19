@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native'
 import React, { useState } from 'react'
 import ScreenLayout from '@/components/screen-layout'
 import { Controller, useForm } from "react-hook-form"
@@ -15,7 +15,7 @@ import { Eye, EyeOff } from 'lucide-react-native'
 const Register = () => {
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-
+    const [loading, setLoading] = useState(false)
     const { control, handleSubmit, formState: { errors }, reset } = useForm<z.infer<typeof registerSchema>>({
         resolver: zodResolver(registerSchema),
         defaultValues: {
@@ -30,7 +30,9 @@ const Register = () => {
     const register = useAuth(state => state.register)
 
     const onPress = async (data: z.infer<typeof registerSchema>) => {
+        setLoading(true)
         const response = await register(data.email, data.username, data.password)
+        setLoading(false)
         if (response.success) {
             reset()
             router.push("/(auth)")
@@ -125,8 +127,8 @@ const Register = () => {
                     )}
                 />
 
-                <Button variant="default" onPress={handleSubmit(onPress)} className='w-full'>
-                    <Text className='text-primary-foreground'>Register</Text>
+                <Button disabled={loading} variant="default" onPress={handleSubmit(onPress)} className='w-full'>
+                    {loading ? <ActivityIndicator color="white" /> : <Text className='text-primary-foreground'>Register</Text>}
                 </Button>
 
                 <Link className='mt-4 text-center text-muted-foreground' href="/(auth)">

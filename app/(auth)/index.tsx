@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native'
 import React, { useState } from 'react'
 import ScreenLayout from '@/components/screen-layout'
 import { Controller, useForm } from "react-hook-form"
@@ -17,19 +17,20 @@ const Index = () => {
     const { control, handleSubmit, formState: { errors }, reset } = useForm<z.infer<typeof loginSchema>>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
-            userId: "Tanay Jagnani",
-            password: "12345678"
+            userId: "",
+            password: ""
         }
     })
     const router = useRouter()
     const login = useAuth(state => state.login)
+    const [loading, setLoading] = useState(false)
     const onPress = async (data: z.infer<typeof loginSchema>) => {
+        setLoading(true)
         const response = await login(data.userId, data.password)
+        setLoading(false)
         if (response.success) {
             reset()
             try {
-                await AsyncStorage.setItem("accessToken", response.data.accessToken)
-                await AsyncStorage.setItem("refreshToken", response.data.refreshToken)
                 successToast({ message: response.message })
                 router.replace("/(home)")
             } catch (error) {
@@ -83,7 +84,10 @@ const Index = () => {
                         </View>
                     )}
                 />
-                <Button variant="default" onPress={handleSubmit(onPress)} className='w-full'><Text className='text-primary-foreground'>Login</Text></Button>
+                <Button disabled={loading} variant="default" onPress={handleSubmit(onPress)} className='w-full'>
+                    {loading ? <ActivityIndicator color="white" /> : <Text className='text-primary-foreground'>Login</Text>}
+                </Button>
+
                 <Link className='mt-4 text-center text-muted-foreground' href="/(auth)/register">
                     New User?{" "}<Text className='underline
                     '>
