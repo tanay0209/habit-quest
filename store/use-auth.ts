@@ -3,6 +3,8 @@ import { handleError } from "@/utils/handle-error"
 import axios from "axios"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { User } from "@/lib/types"
+import { BASE_URL } from "@/lib/constants"
+import useHabit from "./use-habit"
 interface IAuthState {
     accessToken: string | null
     refreshToken: string | null
@@ -19,7 +21,6 @@ interface IAuthActions {
     setToken: (accessToken: string, refreshToken: string) => void
     hydrate: () => Promise<void>;
 }
-const BASE_URL = process.env.EXPO_PUBLIC_BASE_URL
 export const useAuth = create<IAuthActions & IAuthState>((set, get) => ({
     user: null,
     accessToken: null,
@@ -132,7 +133,6 @@ export const useAuth = create<IAuthActions & IAuthState>((set, get) => ({
                 message: response.data.message
             }
         } catch (error: any) {
-            console.log(error.response.data.message);
             handleError(error)
             return {
                 message: error.response.data.message || "Something went wrong",
@@ -149,6 +149,9 @@ export const useAuth = create<IAuthActions & IAuthState>((set, get) => ({
             })
             set({
                 user: response.data.data.user
+            })
+            useHabit.setState({
+                habits: get().user?.habits
             })
             return {
                 message: response.data.message,

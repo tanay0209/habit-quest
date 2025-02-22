@@ -16,3 +16,28 @@ export const NAV_THEME = {
         text: 'hsl(0 0% 98%)', // foreground
     },
 };
+
+export const BASE_URL = process.env.EXPO_PUBLIC_BASE_URL
+
+
+export const habitColors = [
+    "#F87171",
+    "#FBBF24",
+    "#34D399",
+    "#60A5FA",
+    "#A78BFA",
+    "#F472B6",
+    "#F97316"
+]
+
+import { Flame, CheckSquare, Book, Dumbbell, Music, Leaf, Activity } from 'lucide-react-native'
+
+export const habitIcons = [
+    { name: "Activity", icon: Activity },
+    { name: "Flame", icon: Flame },
+    { name: "CheckSquare", icon: CheckSquare },
+    { name: "Book", icon: Book },
+    { name: "Dumbbell", icon: Dumbbell },
+    { name: "Music", icon: Music },
+    { name: "Leaf", icon: Leaf },
+]
