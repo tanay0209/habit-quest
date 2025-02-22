@@ -11,7 +11,6 @@ import { useAuth } from '@/store/use-auth'
 import { successToast } from '@/utils/toast'
 import { Link, useRouter } from 'expo-router'
 import { Eye, EyeOff } from 'lucide-react-native'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const Index = () => {
     const { control, handleSubmit, formState: { errors }, reset } = useForm<z.infer<typeof loginSchema>>({
@@ -30,20 +29,16 @@ const Index = () => {
         setLoading(false)
         if (response.success) {
             reset()
-            try {
-                successToast({ message: response.message })
-                router.replace("/(home)")
-            } catch (error) {
-                console.error(error);
-            }
+            successToast({ message: response.message })
+            router.replace("/(home)")
         }
     }
     const [showPassword, setShowPassword] = useState(false)
     return (
         <ScreenLayout>
             <View className='flex-1 justify-center gap-6'>
-                <Text className='text-primary text-3xl text-center'>Habit Quest</Text>
-                <Text className='text-primary text-center'>Welcome back! Stay on track with your habits.</Text>
+                <Text className='text-white text-3xl text-center'>Habit Quest</Text>
+                <Text className='text-white text-center'>Welcome back! Stay on track with your habits.</Text>
                 <Controller
                     control={control}
                     name="userId"

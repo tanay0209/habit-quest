@@ -1,3 +1,4 @@
+import { Settings } from "react-native"
 import { toast } from "sonner-native"
 
 type ToastProps = {
@@ -9,5 +10,12 @@ export const successToast = ({ message }: ToastProps) => {
 }
 
 export const errorToast = ({ message }: ToastProps) => {
-    return toast.error(message)
+    return toast.error(message, {
+        richColors: true,
+        styles: {
+            title: {
+                color: "white"
+            }
+        }
+    })
 }

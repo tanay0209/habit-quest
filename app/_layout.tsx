@@ -1,5 +1,5 @@
 import '~/global.css';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { gestureHandlerRootHOC, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Theme, ThemeProvider, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -24,9 +24,8 @@ export {
   ErrorBoundary,
 } from 'expo-router';
 
-export default function RootLayout() {
-  const hasMounted = React.useRef(false);
-  const { colorScheme, isDarkColorScheme } = useColorScheme();
+function RootLayout() {
+  const { colorScheme } = useColorScheme();
   const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
   const [isLoggedIn, setIsLoggedIn] = React.useState<boolean | null>(null);
   const router = useRouter();
@@ -38,7 +37,6 @@ export default function RootLayout() {
       const refreshToken = await AsyncStorage.getItem('refreshToken');
       const expiresAt = await AsyncStorage.getItem('expiresAt');
       const isAccessTokenValid = expiresAt && new Date().getTime() < parseInt(expiresAt, 10);
-
       if (accessToken && refreshToken && isAccessTokenValid) {
         setToken(accessToken, refreshToken)
         setIsLoggedIn(true);
@@ -63,12 +61,14 @@ export default function RootLayout() {
 
 
   React.useEffect(() => {
-    if (!hasMounted.current) {
+    const hydrateAuth = async () => {
+      await useAuth.getState().hydrate();
+      await checkLoginStatus();
       setIsColorSchemeLoaded(true);
-      hasMounted.current = true;
-      checkLoginStatus();
-    }
+    };
+    hydrateAuth();
   }, []);
+
 
   React.useEffect(() => {
     if (isLoggedIn !== null) {
@@ -86,13 +86,14 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView>
-      <Toaster position='bottom-center' />
-      <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-        <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} />
-        <Stack screenOptions={{ animation: 'ios_from_right' }}>
-          <Stack.Screen name='(auth)' options={{ headerShown: false }} />
-          <Stack.Screen name='(home)' options={{ headerShown: false }} />
+      <ThemeProvider value={DARK_THEME}>
+        <StatusBar />
+        <Stack screenOptions={{ animation: 'ios_from_right', headerShown: false }}>
+          <Stack.Screen name='(auth)' />
+          <Stack.Screen name='(home)' />
+          <Stack.Screen name='(habit)' />
         </Stack>
+        <Toaster position='bottom-center' />
       </ThemeProvider>
     </GestureHandlerRootView>
   );
@@ -100,3 +101,6 @@ export default function RootLayout() {
 
 const useIsomorphicLayoutEffect =
   Platform.OS === 'web' && typeof window === 'undefined' ? React.useEffect : React.useLayoutEffect;
+
+
+export default gestureHandlerRootHOC(RootLayout)

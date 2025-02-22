@@ -43,8 +43,8 @@ const Register = () => {
     return (
         <ScreenLayout>
             <View className='flex-1 justify-center gap-6'>
-                <Text className='text-primary text-3xl text-center'>Habit Quest</Text>
-                <Text className='text-primary text-center'>Build better habits, one day at a time!</Text>
+                <Text className='text-white text-3xl text-center'>Habit Quest</Text>
+                <Text className='text-white text-center'>Build better habits, one day at a time!</Text>
 
                 <Controller
                     control={control}
